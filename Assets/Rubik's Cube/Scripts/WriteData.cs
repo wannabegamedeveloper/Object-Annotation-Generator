@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -28,9 +29,12 @@ public class WriteData : MonoBehaviour
     public void GenerateData()
     {
         if (_index >= max) return;
-        cam.position = transform.position;
+        
+        var t = transform;
+        cam.position = t.position;
+        cam.rotation = t.rotation;
+        
         GenerateBoundingBox(cube.bounds);
-        Instantiate(cube, Camera.main.ScreenToWorldPoint(new Vector3(_minX, _maxY, 10f)), Quaternion.identity);
         WriteToFile();
     }
     
@@ -66,7 +70,7 @@ public class WriteData : MonoBehaviour
     {
         _index++;
         OpenFile(location + _index + ".txt");
-        WriteString(0 + " " + _minX + " " + (512f - _maxY) + " " + (_maxX - _minX) + " " + (_maxY - _minY));
+        WriteString(0 + " " + (_minX + _maxX) / 2 + " " + (512f - ((_minY + _maxY) / 2)) + " " + (_maxX - _minX) + " " + (_maxY - _minY));
     }
     
     private void OpenFile(string path)
@@ -78,5 +82,10 @@ public class WriteData : MonoBehaviour
     private void WriteString(string text)
     {
         _writer.Write(text);
+    }
+
+    private void OnApplicationQuit()
+    {
+        _writer.Close();
     }
 }
